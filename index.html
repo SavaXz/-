@@ -45,9 +45,7 @@
 
         .section.active { display: flex; }
 
-        #music.active {
-            margin-top: -60px; 
-        }
+        #music.active { margin-top: -60px; }
 
         @keyframes appear {
             from { opacity: 0; transform: translateY(10px); }
@@ -81,27 +79,10 @@
         .track-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .track-author { font-size: 14px; color: var(--text-dim); }
 
-        .progress-wrapper { 
-            width: 100%; 
-            margin-bottom: 25px; 
-            pointer-events: none; 
-        }
-        
-        .playback-bar { 
-            width: 100%; height: 6px; background: rgba(255,255,255,0.1); 
-            border-radius: 10px; position: relative;
-        }
-        
-        .playback-fill { 
-            height: 100%; width: 0%; background: #fff; 
-            border-radius: 10px; 
-            transition: width 0.1s linear;
-        }
-        
-        .time-info { 
-            display: flex; justify-content: space-between; 
-            width: 100%; margin-top: 8px; font-size: 11px; color: var(--text-dim); font-weight: 600;
-        }
+        .progress-wrapper { width: 100%; margin-bottom: 25px; pointer-events: none; }
+        .playback-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; position: relative; }
+        .playback-fill { height: 100%; width: 0%; background: #fff; border-radius: 10px; transition: width 0.1s linear; }
+        .time-info { display: flex; justify-content: space-between; width: 100%; margin-top: 8px; font-size: 11px; color: var(--text-dim); font-weight: 600; }
 
         .controls { display: flex; align-items: center; justify-content: center; width: 100%; }
         .play-btn {
@@ -110,11 +91,9 @@
             transition: transform 0.2s;
         }
         .play-btn:active { transform: scale(0.9); }
-        
         .play-icon { width: 0; height: 0; border-style: solid; border-width: 12px 0 12px 20px; border-color: transparent transparent transparent #000; margin-left: 5px; }
         .pause-icon { display: none; width: 20px; height: 24px; justify-content: space-between; }
         .pause-icon div { width: 7px; height: 24px; background: #000; border-radius: 2px; }
-        
         .playing .play-icon { display: none; }
         .playing .pause-icon { display: flex; }
 
@@ -140,7 +119,7 @@
 </head>
 <body>
 
-    <audio id="audio-engine" src="music.m4a" loop></audio>
+    <audio id="audio-engine" src="music.m4a" loop preload="auto"></audio>
 
     <div class="content-wrapper">
         <section id="main" class="section active">
@@ -149,7 +128,7 @@
                 <h1 style="font-size: 20px; font-weight: 700;">человек без личной жизни</h1>
                 <video src="165.mp4" class="nick-video" autoplay loop muted playsinline></video>
             </div>
-            <p id="bio-text" style="color:var(--text-dim); max-width: 280px; line-height: 1.4;">ыыэ, ааэээаэ🍅</p>
+            <p id="bio-text" style="color:var(--text-dim); max-width: 280px; line-height: 1.4;">ыыэ, ааэээаэ</p>
         </section>
 
         <section id="music" class="section">
@@ -196,6 +175,7 @@
         const durationTxt = document.getElementById('duration');
 
         function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
             const min = Math.floor(seconds / 60);
             const sec = Math.floor(seconds % 60);
             return `${min}:${sec < 10 ? '0' + sec : sec}`;
@@ -203,8 +183,11 @@
 
         function togglePlay() {
             if (audio.paused) {
-                audio.play();
-                controlBox.classList.add('playing');
+                audio.play().then(() => {
+                    controlBox.classList.add('playing');
+                }).catch(e => {
+                    console.error("Ошибка воспроизведения:", e);
+                });
             } else {
                 audio.pause();
                 controlBox.classList.remove('playing');
@@ -229,7 +212,6 @@
             document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             document.getElementById('indicator').style.transform = `translateX(${index * 115}px)`;
-            if (window.navigator.vibrate) window.navigator.vibrate(8);
         }
     </script>
 </body>
