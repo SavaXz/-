@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bio</title>
+    <style>
+        :root {
+            --bg: #000;
+            --card-bg: #111;
+            --text-main: #fff;
+            --text-dim: #666;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            background: radial-gradient(circle at center, #1c1c1e 0%, #000 100%);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+
+        .content-wrapper { 
+            width: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            height: 100%;
+        }
+
+        .section {
+            display: none; flex-direction: column; align-items: center;
+            text-align: center; width: 100%; padding: 20px; animation: appear 0.4s ease-out;
+        }
+
+        .section.active { display: flex; }
+
+        #music.active {
+            margin-top: -60px; 
+        }
+
+        @keyframes appear {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .avatar-box { width: 130px; height: 130px; margin-bottom: 25px; }
+        .avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--border); }
+
+        .nick-video {
+            width: 35px; 
+            height: 35px; 
+            border-radius: 8px; 
+            object-fit: cover;
+        }
+
+        .player-card {
+            background: var(--card-bg);
+            width: 320px; border-radius: 40px; border: 1px solid var(--border);
+            padding: 30px; display: flex; flex-direction: column; align-items: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+        }
+
+        .track-cover {
+            width: 240px; height: 240px; border-radius: 25px;
+            object-fit: cover; margin-bottom: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        .track-info { margin-bottom: 20px; width: 100%; text-align: left; padding: 0 5px; }
+        .track-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .track-author { font-size: 14px; color: var(--text-dim); }
+
+        .progress-wrapper { 
+            width: 100%; 
+            margin-bottom: 25px; 
+            pointer-events: none; 
+        }
+        
+        .playback-bar { 
+            width: 100%; height: 6px; background: rgba(255,255,255,0.1); 
+            border-radius: 10px; position: relative;
+        }
+        
+        .playback-fill { 
+            height: 100%; width: 0%; background: #fff; 
+            border-radius: 10px; 
+            transition: width 0.1s linear;
+        }
+        
+        .time-info { 
+            display: flex; justify-content: space-between; 
+            width: 100%; margin-top: 8px; font-size: 11px; color: var(--text-dim); font-weight: 600;
+        }
+
+        .controls { display: flex; align-items: center; justify-content: center; width: 100%; }
+        .play-btn {
+            width: 70px; height: 70px; background: #fff; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .play-btn:active { transform: scale(0.9); }
+        
+        .play-icon { width: 0; height: 0; border-style: solid; border-width: 12px 0 12px 20px; border-color: transparent transparent transparent #000; margin-left: 5px; }
+        .pause-icon { display: none; width: 20px; height: 24px; justify-content: space-between; }
+        .pause-icon div { width: 7px; height: 24px; background: #000; border-radius: 2px; }
+        
+        .playing .play-icon { display: none; }
+        .playing .pause-icon { display: flex; }
+
+        .nav-container {
+            position: fixed; bottom: 40px; background: rgba(255, 255, 255, 0.05);
+            padding: 6px; border-radius: 40px; border: 1px solid var(--border);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            z-index: 100;
+        }
+        .btn-row { display: flex; position: relative; gap: 5px; }
+        .nav-indicator {
+            position: absolute; height: 100%; width: 110px;
+            background: rgba(255, 255, 255, 0.1); border-radius: 32px;
+            transition: transform 0.4s cubic-bezier(0.2, 1, 0.2, 1);
+        }
+        .btn {
+            background: transparent; border: none; color: var(--text-dim);
+            padding: 14px 0; border-radius: 32px; font-size: 14px;
+            font-weight: 600; width: 110px; cursor: pointer; position: relative; z-index: 1;
+        }
+        .btn.active { color: #fff; }
+    </style>
+</head>
+<body>
+
+    <audio id="audio-engine" src="music.m4a" loop></audio>
+
+    <div class="content-wrapper">
+        <section id="main" class="section active">
+            <div class="avatar-box"><img src="Sava.jpg" alt="Avatar" class="avatar-img"></div>
+            <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+                <h1 style="font-size: 20px; font-weight: 700;">человек без личной жизни</h1>
+                <video src="165.mp4" class="nick-video" autoplay loop muted playsinline></video>
+            </div>
+            <p id="bio-text" style="color:var(--text-dim); max-width: 280px; line-height: 1.4;">ыыэ, ааэээаэ🍅</p>
+        </section>
+
+        <section id="music" class="section">
+            <div class="player-card">
+                <img src="music.jpg" class="track-cover" id="cover">
+                <div class="track-info">
+                    <div class="track-title">Midlife Crisis</div>
+                    <div class="track-author">Faith No More</div>
+                </div>
+                
+                <div class="progress-wrapper">
+                    <div class="playback-bar">
+                        <div class="playback-fill" id="progress"></div>
+                    </div>
+                    <div class="time-info">
+                        <span id="current-time">0:00</span>
+                        <span id="duration">0:00</span>
+                    </div>
+                </div>
+
+                <div class="controls" id="controlBox">
+                    <div class="play-btn" onclick="togglePlay()">
+                        <div class="play-icon"></div>
+                        <div class="pause-icon"><div></div><div></div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="nav-container">
+        <div class="btn-row">
+            <div id="indicator" class="nav-indicator"></div>
+            <button class="btn active" onclick="tab('main', this, 0)">Главное</button>
+            <button class="btn" onclick="tab('music', this, 1)">Музыка</button>
+        </div>
+    </div>
+
+    <script>
+        const audio = document.getElementById('audio-engine');
+        const progress = document.getElementById('progress');
+        const controlBox = document.getElementById('controlBox');
+        const currTimeTxt = document.getElementById('current-time');
+        const durationTxt = document.getElementById('duration');
+
+        function formatTime(seconds) {
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${min}:${sec < 10 ? '0' + sec : sec}`;
+        }
+
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play();
+                controlBox.classList.add('playing');
+            } else {
+                audio.pause();
+                controlBox.classList.remove('playing');
+            }
+        }
+
+        audio.addEventListener('loadedmetadata', () => {
+            durationTxt.textContent = formatTime(audio.duration);
+        });
+
+        audio.ontimeupdate = () => {
+            if (audio.duration) {
+                const pct = (audio.currentTime / audio.duration) * 100;
+                progress.style.width = pct + '%';
+                currTimeTxt.textContent = formatTime(audio.currentTime);
+            }
+        };
+
+        function tab(name, btn, index) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(name).classList.add('active');
+            document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('indicator').style.transform = `translateX(${index * 115}px)`;
+            if (window.navigator.vibrate) window.navigator.vibrate(8);
+        }
+    </script>
+</body>
+</html>
